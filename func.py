@@ -24,6 +24,23 @@ MODEL_MEMBER_PREDICT_PATH = 'model\\facerec_checkpoint.h5'
 model_member_predict = tf.keras.models.load_model(MODEL_MEMBER_PREDICT_PATH)
 CLASS_NAMES = ['giang', 'hanh', 'loc', 'nam']
 
+#EMOTIONAL MODEL 
+MODEL_EMOTION_RECOGNIZE_PATH = 'model\\FE_ResNet.h5'
+EMOTION_CLASS_NAMES = ['angry', 'happy', 'neutral', 'sad']
+MODEL_EMOTION_RECOGNIZE = tf.keras.models.load_model(MODEL_EMOTION_RECOGNIZE_PATH)
+
+def predict_emotion(image_path): 
+    #INPUT: PATH OF AN FACE
+    #OUTPUT: PREDICTION OF EMOTION   
+    img_array = tfimage.load_img(image_path,target_size=(48,48))
+    img_array = tfimage.img_to_array(img_array)
+    img_array  = np.expand_dims(img_array, axis=0) #predict nhận theo batch (1,224,224,3)
+    print(img_array.shape)
+    prediction = MODEL_EMOTION_RECOGNIZE.predict(img_array)
+    print('prediction:', prediction)
+    index = prediction.argmax()   
+
+    return prediction[0], index
 
 def detect_bounding_box(input_img):
     #INPUT: RAW IMAGE CAPTURE FROM WEBCAM FRAME 
@@ -96,14 +113,20 @@ def predict_image(image_path):
     #OUTPUT: prediction, index, emotion
     print('Predict function')
 
-    emotion = 'happy'
+    #PREDICT EMOTION
+    
+    prediction, index = predict_emotion(image_path)
+    emotion = EMOTION_CLASS_NAMES[index]
+    proba_emotion = prediction[index]
+
+    #PREDICT 
     img_array, label = load_and_preprocess_image(image_path)
     img_array  = np.expand_dims(img_array, axis=0) #predict nhận theo batch (1,224,224,3)
     
     prediction = model_member_predict.predict(img_array)
     index = prediction.argmax()    
     
-    return prediction[0], index, emotion
+    return prediction[0], index, emotion, proba_emotion
 
 def save_file_to_tmp(img):
     tmp_path = os.path.normpath('tmp')

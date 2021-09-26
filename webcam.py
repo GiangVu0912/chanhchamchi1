@@ -27,7 +27,7 @@ while True:
         img_path = save_file_to_tmp(crop_img)
         print(img_path)
 
-        prediction, index, emotion = predict_image(img_path)
+        prediction, index, emotion, proba_emotion = predict_image(img_path)
         os.remove(img_path)
 
         #Result
@@ -42,7 +42,7 @@ while True:
 
         print('reslt:',prediction, index, emotion)
         frame = cv2.putText(frame,"{:.2f}%".format(model_confidence *100)+ '-' + member_name,(x_left,y_top), cv2.FONT_HERSHEY_SIMPLEX,  0.8, (255,0,0), 1,  cv2.LINE_AA)
-        frame = cv2.putText(frame,member_emotion,(x_left,y_top+20), cv2.FONT_HERSHEY_SIMPLEX,  0.8, (0,255,0), 1,  cv2.LINE_AA)
+        frame = cv2.putText(frame,"{:.2f}%".format(proba_emotion *100)+ '-' +member_emotion,(x_left,y_top+20), cv2.FONT_HERSHEY_SIMPLEX,  0.8, (0,255,0), 1,  cv2.LINE_AA)
     
     except IndexError as ierr:
         frame = cv2.putText(frame,'Cannot found Bounding Box',(20,20), cv2.FONT_HERSHEY_SIMPLEX,  0.8, (255,0,0), 1,  cv2.LINE_AA)
